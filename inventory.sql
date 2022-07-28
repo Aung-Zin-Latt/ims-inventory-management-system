@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 19, 2021 at 10:54 AM
+-- Generation Time: Jul 28, 2022 at 05:05 PM
 -- Server version: 10.4.17-MariaDB
 -- PHP Version: 7.3.25
 
@@ -39,8 +39,11 @@ CREATE TABLE `brands` (
 
 INSERT INTO `brands` (`id`, `name`, `active`) VALUES
 (21, 'Samsung', 1),
-(22, 'something', 2),
-(27, 'Apple', 1);
+(27, 'Apple', 1),
+(30, 'MacBook', 1),
+(33, 'DELL', 1),
+(34, 'Huawei', 1),
+(35, 'Lenovo', 1);
 
 -- --------------------------------------------------------
 
@@ -76,7 +79,8 @@ CREATE TABLE `categories` (
 INSERT INTO `categories` (`id`, `name`, `active`) VALUES
 (12, 'Camera', 2),
 (13, 'Laptop', 1),
-(14, 'Phone', 1);
+(14, 'Phone', 1),
+(15, 'Book', 1);
 
 -- --------------------------------------------------------
 
@@ -103,10 +107,28 @@ CREATE TABLE `charge_order` (
 --
 
 CREATE TABLE `customers` (
-  `customer_id` int(25) NOT NULL,
+  `id` int(25) NOT NULL,
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `address` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `contact_number` varchar(100) COLLATE utf8_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `customers`
+--
+
+INSERT INTO `customers` (`id`, `name`, `address`, `contact_number`) VALUES
+(1, 'Arkar', 'Yangon', '0978784563');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `discounts`
+--
+
+CREATE TABLE `discounts` (
+  `id` int(11) NOT NULL,
+  `discount_price` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
@@ -140,8 +162,9 @@ CREATE TABLE `models` (
 --
 
 INSERT INTO `models` (`id`, `name`, `active`) VALUES
-(1, 'Galaxy S21 Ultra', 1),
-(3, 'testModel', 2);
+(1, 'Galaxy S21 Ultra', 2),
+(3, 'MateBook D15', 1),
+(8, 'Lenovo 100e', 1);
 
 -- --------------------------------------------------------
 
@@ -150,16 +173,52 @@ INSERT INTO `models` (`id`, `name`, `active`) VALUES
 --
 
 CREATE TABLE `orders` (
-  `order_id` int(25) NOT NULL,
-  `customer_id` int(25) NOT NULL,
-  `emp_id` int(25) NOT NULL,
-  `invoice_number` int(25) NOT NULL,
-  `total_price` int(50) NOT NULL,
+  `id` int(25) NOT NULL,
+  `invoice_number` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `gross_amount` int(50) NOT NULL,
+  `vat_charge_rate` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `vat_charge` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `net_amount` int(11) NOT NULL,
   `date_order` date NOT NULL,
-  `qty` int(11) NOT NULL,
-  `or_number` int(11) NOT NULL,
-  `brand_id` int(25) NOT NULL
+  `or_number` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`id`, `invoice_number`, `gross_amount`, `vat_charge_rate`, `vat_charge`, `net_amount`, `date_order`, `or_number`, `user_id`) VALUES
+(26, 'INV/CF6E', 425000, '', '25000', 450000, '2021-01-28', 'OR -9385', 2),
+(27, 'INV/C5EF', 945000, '', '40450', 849450, '2021-01-28', 'OR -8911', 1),
+(28, 'INV/53CD', 1754000, '', '80900', 1698900, '2021-01-31', 'OR -17CD', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_lines`
+--
+
+CREATE TABLE `order_lines` (
+  `id` int(11) NOT NULL,
+  `order_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `qty` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `rate` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `discount` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `amount` varchar(255) COLLATE utf8_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `order_lines`
+--
+
+INSERT INTO `order_lines` (`id`, `order_id`, `product_id`, `qty`, `rate`, `discount`, `amount`) VALUES
+(19, 26, 3, '1', '500000', '15', '425000.00'),
+(20, 27, 4, '1', '170000', '20', '136000.00'),
+(21, 27, 5, '1', '809000', '0', '809000.00'),
+(22, 28, 4, '1', '170000', '20', '136000.00'),
+(23, 28, 5, '2', '809000', '0', '1618000.00');
 
 -- --------------------------------------------------------
 
@@ -169,14 +228,32 @@ CREATE TABLE `orders` (
 
 CREATE TABLE `products` (
   `product_id` int(11) NOT NULL,
+  `img` blob DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `price` int(25) NOT NULL,
+  `purchased_price` int(11) NOT NULL,
+  `qty` int(25) NOT NULL,
+  `discount` int(25) DEFAULT NULL,
   `date_received` date NOT NULL,
   `brand_id` int(25) NOT NULL,
   `model_id` int(25) NOT NULL,
-  `serial_number` int(50) NOT NULL,
+  `category_id` int(25) NOT NULL,
+  `store_id` int(25) NOT NULL,
+  `description` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `availability` int(50) NOT NULL,
   `date_sold` date NOT NULL,
   `customer_id` int(25) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `products`
+--
+
+INSERT INTO `products` (`product_id`, `img`, `name`, `price`, `purchased_price`, `qty`, `discount`, `date_received`, `brand_id`, `model_id`, `category_id`, `store_id`, `description`, `availability`, `date_sold`, `customer_id`) VALUES
+(3, '', 'Testing Product', 500000, 0, 12, 15, '2021-01-21', 21, 1, 14, 13, '                          this is description                                                                                                                                                ', 2, '0000-00-00', 0),
+(4, '', 'Lenovo 100e', 170000, 0, 10, 20, '2021-01-21', 35, 8, 13, 10, '                 Specs: CPU Intel celeron N3350; 1366*768,standby 6-7 hours;                               ', 1, '0000-00-00', 0),
+(5, '', 'Huawei MateBook D15', 809000, 0, 10, 0, '2021-01-22', 34, 3, 13, 13, '                   15.6-inch HUAWEI FullView Display\r\n\r\n', 1, '0000-00-00', 0),
+(7, '', 'Product A', 200000, 0, 10, 10, '2021-01-21', 21, 3, 13, 10, '                  ', 1, '0000-00-00', 0);
 
 -- --------------------------------------------------------
 
@@ -196,8 +273,7 @@ CREATE TABLE `stores` (
 
 INSERT INTO `stores` (`id`, `name`, `active`) VALUES
 (10, 'store one', 1),
-(13, 'store two', 1),
-(15, 'n', 2);
+(13, 'store two', 1);
 
 -- --------------------------------------------------------
 
@@ -229,6 +305,116 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `name`, `email`, `password`, `address`, `contact_number`) VALUES
+(1, 'Admin', 'admin@gmail.com', 'TXlhMTIzIUAj', 'Yangon', '09-6961474912'),
+(2, 'Emerald', 'emerald@gmail.com', 'TXlhMTIzIUAj', 'Pyawbwe', '09954861489'),
+(3, 'NayChiOo', 'naychi@gmail.com', 'TmF5MTIzIUAj', 'Yangon', '09976392544'),
+(4, 'Kyaw Kyaw', 'kk@gmail.com', 'S2sxMjMhQCM=', 'Yangon', '09976391544'),
+(5, 'Emerald', 'emd@gmail.com', 'RW1kQDEyMzQ1Ng==', 'Ygn', '09755967266'),
+(6, 'ThinThin', 'tt@gmail.com', 'VGhpbkAxMjM0NQ==', 'Mdy', '0979795536'),
+(7, 'MinKhantZaw', 'mkz@gmail.com', 'TWt6QDEyMzQ1Ng==', 'Yangon', '09755967288');
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `vw_orderlines`
+-- (See below for the actual view)
+--
+CREATE TABLE `vw_orderlines` (
+`id` int(11)
+,`order_id` int(11)
+,`qty` varchar(255)
+,`rate` varchar(255)
+,`discount` varchar(255)
+,`amount` varchar(255)
+,`inv_no` varchar(255)
+,`gross_amt` int(50)
+,`vat_rate` varchar(255)
+,`Vat` varchar(255)
+,`net_amt` int(11)
+,`date_order` date
+,`or_number` varchar(255)
+,`product_name` varchar(255)
+,`selling_price` int(25)
+,`discount_price` int(25)
+,`purchased_price` int(11)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `vw_orders`
+-- (See below for the actual view)
+--
+CREATE TABLE `vw_orders` (
+`id` int(25)
+,`invoice_number` varchar(255)
+,`gross_amount` int(50)
+,`vat_charge_rate` varchar(255)
+,`vat_charge` varchar(255)
+,`net_amount` int(11)
+,`date_order` date
+,`or_number` varchar(255)
+,`user_name` varchar(255)
+,`user_address` varchar(255)
+,`user_contact_number` varchar(100)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `vw_products`
+-- (See below for the actual view)
+--
+CREATE TABLE `vw_products` (
+`product_id` int(11)
+,`img` blob
+,`name` varchar(255)
+,`price` int(25)
+,`purchased_price` int(11)
+,`qty` int(25)
+,`discount` int(25)
+,`date_received` date
+,`brand_name` varchar(255)
+,`model_name` varchar(255)
+,`category_name` varchar(255)
+,`store_name` varchar(255)
+,`description` varchar(255)
+,`availability` int(50)
+,`date_sold` date
+);
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `vw_orderlines`
+--
+DROP TABLE IF EXISTS `vw_orderlines`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_orderlines`  AS SELECT `order_lines`.`id` AS `id`, `order_lines`.`order_id` AS `order_id`, `order_lines`.`qty` AS `qty`, `order_lines`.`rate` AS `rate`, `order_lines`.`discount` AS `discount`, `order_lines`.`amount` AS `amount`, `orders`.`invoice_number` AS `inv_no`, `orders`.`gross_amount` AS `gross_amt`, `orders`.`vat_charge_rate` AS `vat_rate`, `orders`.`vat_charge` AS `Vat`, `orders`.`net_amount` AS `net_amt`, `orders`.`date_order` AS `date_order`, `orders`.`or_number` AS `or_number`, `products`.`name` AS `product_name`, `products`.`price` AS `selling_price`, `products`.`discount` AS `discount_price`, `products`.`purchased_price` AS `purchased_price` FROM ((`order_lines` left join `orders` on(`orders`.`id` = `order_lines`.`order_id`)) left join `products` on(`products`.`product_id` = `order_lines`.`product_id`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `vw_orders`
+--
+DROP TABLE IF EXISTS `vw_orders`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_orders`  AS SELECT `orders`.`id` AS `id`, `orders`.`invoice_number` AS `invoice_number`, `orders`.`gross_amount` AS `gross_amount`, `orders`.`vat_charge_rate` AS `vat_charge_rate`, `orders`.`vat_charge` AS `vat_charge`, `orders`.`net_amount` AS `net_amount`, `orders`.`date_order` AS `date_order`, `orders`.`or_number` AS `or_number`, `users`.`name` AS `user_name`, `users`.`address` AS `user_address`, `users`.`contact_number` AS `user_contact_number` FROM (`orders` left join `users` on(`users`.`id` = `orders`.`user_id`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `vw_products`
+--
+DROP TABLE IF EXISTS `vw_products`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_products`  AS SELECT `products`.`product_id` AS `product_id`, `products`.`img` AS `img`, `products`.`name` AS `name`, `products`.`price` AS `price`, `products`.`purchased_price` AS `purchased_price`, `products`.`qty` AS `qty`, `products`.`discount` AS `discount`, `products`.`date_received` AS `date_received`, `brands`.`name` AS `brand_name`, `models`.`name` AS `model_name`, `categories`.`name` AS `category_name`, `stores`.`name` AS `store_name`, `products`.`description` AS `description`, `products`.`availability` AS `availability`, `products`.`date_sold` AS `date_sold` FROM ((((`products` left join `brands` on(`brands`.`id` = `products`.`brand_id`)) left join `models` on(`products`.`model_id` = `models`.`id`)) left join `categories` on(`categories`.`id` = `products`.`category_id`)) left join `stores` on(`stores`.`id` = `products`.`store_id`)) ;
+
+--
 -- Indexes for dumped tables
 --
 
@@ -257,6 +443,18 @@ ALTER TABLE `charge_order`
   ADD PRIMARY KEY (`chargeorder_id`);
 
 --
+-- Indexes for table `customers`
+--
+ALTER TABLE `customers`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `discounts`
+--
+ALTER TABLE `discounts`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `employees`
 --
 ALTER TABLE `employees`
@@ -272,7 +470,15 @@ ALTER TABLE `models`
 -- Indexes for table `orders`
 --
 ALTER TABLE `orders`
-  ADD PRIMARY KEY (`order_id`);
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `order_lines`
+--
+ALTER TABLE `order_lines`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `product_id` (`product_id`),
+  ADD KEY `order_id` (`order_id`);
 
 --
 -- Indexes for table `products`
@@ -306,7 +512,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `brands`
 --
 ALTER TABLE `brands`
-  MODIFY `id` int(25) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(25) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `cash_order`
@@ -318,13 +524,25 @@ ALTER TABLE `cash_order`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(25) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(25) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `charge_order`
 --
 ALTER TABLE `charge_order`
   MODIFY `chargeorder_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `customers`
+--
+ALTER TABLE `customers`
+  MODIFY `id` int(25) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `discounts`
+--
+ALTER TABLE `discounts`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `employees`
@@ -336,19 +554,25 @@ ALTER TABLE `employees`
 -- AUTO_INCREMENT for table `models`
 --
 ALTER TABLE `models`
-  MODIFY `id` int(25) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(25) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(25) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(25) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+
+--
+-- AUTO_INCREMENT for table `order_lines`
+--
+ALTER TABLE `order_lines`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `stores`
@@ -366,7 +590,18 @@ ALTER TABLE `suppliers`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(25) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(25) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `order_lines`
+--
+ALTER TABLE `order_lines`
+  ADD CONSTRAINT `order_id` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`),
+  ADD CONSTRAINT `product_id` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
